@@ -261,6 +261,7 @@ class ApiController extends Controller
 
 
         // If the value is not null I need to assign the value to the variable $cachedDataOnCarFromWayke so I can use it in further calculations. 
+        
         if ($cachedDataOnCarFromWayke !== null) {
             
             $data = $cachedDataOnCarFromWayke;
@@ -268,6 +269,7 @@ class ApiController extends Controller
             echo "The valuation is calculated using a cached data from Wayke. \n";
 
         }
+        
 
         // If the value is null I need to get the value from Wayke and then save it in the cache for future use.
         else {
@@ -335,9 +337,9 @@ class ApiController extends Controller
             $ruleMaxKm = $rule['maxKm'];
 
             $ruleModelSeries = $rule['modelSeries'];
-            $ruleHasTowBar = $rule['hasTowBar'];
 
             // The following are arrays. I need to figure out how to check if the constraints match the values of the car.
+            $ruleHasTowBar = $rule['hasTowBar'];
             $ruleFuelType = $rule['fuelType'];
             $ruleGearboxType = $rule['gearboxType'];
 
@@ -365,8 +367,8 @@ class ApiController extends Controller
             // I need to get the values from the CAR object from WAYKE.
             $carManufacturer = $data['dataUsed']['manufacturer'];
             $carModelSeries = $data['dataUsed']['modelSeries'];
-            $carHasTowbar = $data['dataUsed']['hasTowbar'];
-
+            
+            $carHasTowbar = $data['dataUsed']['hasTowbar']; // true or false
             $carFuelType = $data['dataUsed']['fuelType'];
             $carGearboxType = $data['dataUsed']['gearboxType'];
 
@@ -381,13 +383,19 @@ class ApiController extends Controller
             // I also need to check if the rule makes a contender.
         if(
 
-            // COMPARE CONSTRAINTS OF THE CAR WITH RULES: 
+            // COMPARE CONSTRAINTS OF THE CAR WITH RULES:
             $carManufacturer === $ruleManufacturer && 
             ($carMileageInKm >= $ruleMinKm or $ruleMinKm === null) &&
             ($carMileageInKm <= $ruleMaxKm or $ruleMaxKm === null) &&
             ($carModelSeries === $ruleModelSeries or $ruleModelSeries === null) &&
-            ($carHasTowbar === $ruleHasTowBar or $ruleHasTowBar === null) &&
-            
+            //($carHasTowbar === $ruleHasTowBar or $ruleHasTowBar === null) &&
+
+            (
+            (($carHasTowbar === true) && (in_array('HasTowbar', $ruleHasTowBar))) ||
+            (($carHasTowbar === false) && (in_array('HasNoTowbar', $ruleHasTowBar))) ||
+            (empty($ruleHasTowBar)) 
+            ) &&
+
             (in_array($carFuelType, $ruleFuelType)) &&
             (in_array($carGearboxType, $ruleGearboxType)) &&
 
