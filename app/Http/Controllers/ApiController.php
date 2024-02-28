@@ -314,82 +314,10 @@ class ApiController extends Controller
         $rules = Rule::all();
 
         /////////////////////////////////////////////////////////////////////////
-        // OWN METHOD
-        foreach($rules as $rule) {
-
-            // I want to set the number of set values on the rules so I then can sort them by that index.
-
-            $values = [
-
-                'nameOfRule',
-                'manufacturer',
-                'minKm',
-                'maxKm',
-                'modelSeries',
-                'hasTowBar',
-                'fuelType',
-                'gearboxType',
-                'equipmentLevel',
-                'minModelYear',
-                'maxModelYear',
-                'minEnginePower',
-                'maxEnginePower',
-                'minManufactureYear',
-                'maxManufactureYear',
-                'isScheduled',
-                'startdate',
-                'enddate',
-                'isPublished',
-                'isActive',
-                'isContender',
-                
-            ];
-    
-        // Transfer the data to an array.
-
-            $associativeArray = array_fill_keys($values, null);
-    
-        // Assign the data to the array.
-            $associativeArray['nameOfRule'] = $rule->nameOfRule;
-            $associativeArray['manufacturer'] = $rule->manufacturer;
-            $associativeArray['minKm'] = $rule->minKm;
-            $associativeArray['maxKm'] = $rule->maxKm;
-            $associativeArray['modelSeries'] = $rule->modelSeries;
-            $associativeArray['hasTowBar'] = $rule->hasTowBar;
-            $associativeArray['fuelType'] = $rule->fuelType;
-            $associativeArray['gearboxType'] = $rule->gearboxType;
-            $associativeArray['equipmentLevel'] = $rule->equipmentLevel;
-            $associativeArray['minModelYear'] = $rule->minModelYear;
-            $associativeArray['maxModelYear'] = $rule->maxModelYear;
-            $associativeArray['minEnginePower'] = $rule->minEnginePower;
-            $associativeArray['maxEnginePower'] = $rule->maxEnginePower;
-            $associativeArray['minManufactureYear'] = $rule->minManufactureYear;
-            $associativeArray['maxManufactureYear'] = $rule->maxManufactureYear;
-            $associativeArray['isScheduled'] = $rule->isScheduled;
-            $associativeArray['startdate'] = $rule->startdate;
-            $associativeArray['enddate'] = $rule->enddate;
-            $associativeArray['isPublished'] = $rule->isPublished;
-            $associativeArray['isActive'] = $rule->isActive;
-            $associativeArray['isContender'] = $rule->isContender;
-    
-        // I need to check how many values are set in the rule.
-            foreach ($associativeArray as $key => $value) {
-    
-                if ($value !== null) {
-    
-                    // Property is not null, increment the counter
-                    $rule->numberOfSetValues++;
-    
-                }
-    
-            }
-        }
-        /////////////////////////////////////////////////////////////////////////
 
         // This sorting makes it possible for the rules with the most set values to be first in the collection.
         // This way the first match will be the best match.   
         $sortedRules = $rules->sortByDesc('numberOfSetValues');
-
 
         /////////////////////////////////////////////////////////////////////////
         // OWN METHOD    

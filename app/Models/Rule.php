@@ -20,7 +20,7 @@ class Rule extends Model
         'isPublished' => 'boolean',
         'isActive' => 'boolean',
         'isContender' => 'boolean',
-        'hasTowBar' => 'boolean',
+        'hasTowBar' => 'array',
         'fuelType' => 'array',
         'gearboxType' => 'array',
     ];

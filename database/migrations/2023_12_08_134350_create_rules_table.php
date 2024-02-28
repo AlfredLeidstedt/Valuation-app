@@ -28,7 +28,7 @@ return new class extends Migration
 
             $table->string('modelSeries')->nullable();
 
-            $table->boolean('hasTowBar')->nullable();
+            $table->json('hasTowBar')->nullable();
             
             // This should be a json object. Not sure if it will work.
             $table->json('fuelType')->nullable();
@@ -67,6 +67,10 @@ return new class extends Migration
             $table->boolean('isContender')
             ->required()
             ->default(true);
+
+            // Property that set the number of set values, and is used to sort the rules. 
+            $table->integer('numberOfSetValues')
+            ->default(0);
 
             // FOREIGN-KEY PROPERTIES THAT ARE SET DEPENDING ON THE INFORMATION-PROPERTIES:
             // $table->foreignId('deduction_id')

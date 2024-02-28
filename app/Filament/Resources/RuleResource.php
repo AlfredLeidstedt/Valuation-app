@@ -9,6 +9,7 @@ use App\Filament\Resources\RuleResource\RelationManagers;
 use App\Filament\Resources\RuleResource\RelationManagers\DeductionsRelationManager;
 use App\Models\Rule;
 use Filament\Forms;
+use Filament\Forms\ComponentContainer;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -24,6 +25,7 @@ use App\Models\Deduction;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\Html; // Import the missing class
 
 
 // THE FOLLOWING IMPORTS ARE FROM THE FILAMENT DOCUMENTATION
@@ -124,9 +126,12 @@ class RuleResource extends Resource
                     ->label('Model series')
                     ->columnSpanFull(),
                 
-                Forms\Components\Checkbox::make('hasTowBar')
-                    ->autofocus()
-                    ->label('Does this rule only apply to cars that have TOWBARS?')
+                Forms\Components\CheckboxList::make('hasTowBar')
+                    ->options([
+                    'HasTowbar' => 'Cars with towbar',
+                    'HasNoTowbar' => 'Cars without towbar',
+                    ])
+                    ->label('Regarding towbars: Which cars are included by this rule?')
                     ->columnSpanFull(),
                 
                 Forms\Components\CheckboxList::make('fuelType')
@@ -209,7 +214,7 @@ class RuleResource extends Resource
                 
 
             
-            Forms\Components\Group::make()
+                Forms\Components\Group::make()
                     ->schema([
 
                         Forms\Components\Section::make('Contender info')
@@ -265,8 +270,11 @@ class RuleResource extends Resource
                     ->default(false)
                     ->required()
                     ->label('Is this rule active?'),
+                    
 
                 ]),
+
+                
                     
 
 
@@ -290,13 +298,15 @@ class RuleResource extends Resource
                 */
 
 
+                ])     
+                
+
                 ])
-
-            ])
-            ->columns(3)
             
-            ;   
-
+            
+            ->columns(3);   
+                
+                
 
     }
 
