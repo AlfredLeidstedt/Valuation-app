@@ -29,9 +29,9 @@ return new class extends Migration
             $table->decimal('deductionPercentage', 10, 3);
 
             // The estimated deduction. This will be calculated by the application.
-            $table->decimal('estimatedDeduction', 14, 2)
+            $table->decimal('estimatedDeduction', 14)
             ->nullable()
-            ->default(100000);
+            ->default(10000);
 
             // Constraints. At what interval of car-valuation should this deduction % be applied to?
             $table->unsignedBigInteger('minValueInterval');

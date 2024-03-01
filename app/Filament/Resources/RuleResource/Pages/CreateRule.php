@@ -6,6 +6,8 @@ use App\Filament\Resources\RuleResource;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
+
 
 class CreateRule extends CreateRecord
 {
@@ -27,9 +29,12 @@ class CreateRule extends CreateRecord
     return $data;
 }
 
-    protected function getCreatedNotificationTitle(): ?string
+    protected function getCreatedNotification(): ?Notification
 {
-    return 'Rule saved! 🎉';
+    return Notification::make()
+    ->success()
+    ->title('Rule saved! 🎉')
+    ->body('Make sure to add a deduction as well!');
 }
 
 }

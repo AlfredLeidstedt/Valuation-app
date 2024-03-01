@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Cache;
 
 
 
-
 class ApiController extends Controller
 {
 
