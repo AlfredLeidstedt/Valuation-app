@@ -35,14 +35,6 @@ class AdminPanelProvider extends PanelProvider
 
             ->globalSearchKeyBindings(['ctrl+q'])
 
-            ->navigationItems([
-                NavigationItem::make('Blog')
-                ->url('https://jw.org', shouldOpenInNewTab: true)
-                ->icon('heroicon-o-pencil-square')
-                ->group('External')
-                ->sort(2)
-            ])
-
             ->userMenuItems([
                 MenuItem::make()
                 ->label('Settings')

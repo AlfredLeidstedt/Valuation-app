@@ -13,6 +13,8 @@ class Rule extends Model
 {
     use HasFactory;
 
+    // Properties: 
+
     protected $table = 'rules';
 
     protected $casts = [
@@ -27,13 +29,15 @@ class Rule extends Model
 
     protected $fillable = [
 
-        // Name of rule should be auto-filled. 
+        // Name of rule is auto-filled. 
+        // numberOfSetValues is set throug a counting method made in the Rule-Resource/Create file. 
 
         'nameOfRule',
         'manufacturer',
         'minKm',
         'maxKm',
-        'modelSeries',
+        //'modelSeries',
+        'car_model_id',
         'hasTowBar',
         'fuelType',
         'gearboxType',
@@ -54,42 +58,70 @@ class Rule extends Model
 
         ];
 
-        // If not null ++1 to a counter-property.
-
         public $timestamps = true;
+
         protected $primaryKey = 'id';
 
-        /*
-        public function deductions(): BelongsToMany
-        {
+        // Relationships: 
 
-            return $this->belongsToMany(Deduction::class);
-
-        }
-        */
-
-        // Test to use another relationship type with relationManager
+        // Use of relationship type with relationManager
         public function deductions(): HasMany
         {
             return $this->hasMany(Deduction::class);
         }
 
-
-        public function createDeduction(Rule $rule, Deduction $deduction): Deduction
+        public function carModel(): BelongsTo
         {
-                $rule = Rule::create($deduction->getRecord()->toArray());
-                
-                $deduction = Deduction::create([
-                    'rule_id' => $rule->id,
-                    'name' => $deduction->get('name'),
-                    'deductionMultiplier' => $deduction->get('deductionMultiplier'),
-                    'minDeduction' => $deduction->get('minDeduction'),
-                    'maxDeduction' => $deduction->get('maxDeduction'),
-                ]);
-
-                return $deduction;
+            return $this->belongsTo(CarModel::class);
         }
-       
 
-        
+        public function valuationHistories(): HasMany
+        {
+            return $this->hasMany(ValuationHistory::class);
+        }
+
+        // Methods: 
+
+        public function isApplicable($data, $rule, $carMileageInKm): bool
+        {
+
+            if( 
+                
+            ($data['dataUsed']['manufacturer'] === $rule['manufacturer']) && 
+
+            ($carMileageInKm >= $rule['minKm'] || $rule['minKm'] === null) &&
+
+            ($carMileageInKm <= $rule['maxKm'] || $rule['maxKm'] === null) &&
+
+            ($data['dataUsed']['modelSeries'] === $rule['modelSeries'] || $rule['modelSeries'] === null) &&
+
+            (
+            (($data['dataUsed']['hasTowbar'] === true) && (in_array('HasTowbar', $rule['hasTowBar']))) ||
+            (($data['dataUsed']['hasTowbar'] === false) && (in_array('HasNoTowbar', $rule['hasTowBar']))) ||
+            (empty($rule['hasTowBar'])) 
+            ) &&
+
+            (in_array($data['dataUsed']['fuelType'], $rule['fuelType'])) ||
+            (empty($rule['fuelType'])) &&
+
+            (in_array($data['dataUsed']['gearboxType'], $rule['gearboxType'])) ||
+            (empty($rule['gearboxType'])) &&
+
+            //($data['dataUsed']['equipmentLevel'] === $rule['equipmentLevel'] or $rule['equipmentLevel'] === null) &&
+
+            ($data['dataUsed']['enginePower'] >= $rule['minEnginePower'] || $rule['minEnginePower'] === null) &&
+
+            ($data['dataUsed']['enginePower'] <= $rule['maxEnginePower'] || $rule['maxEnginePower'] === null) &&
+
+            ($data['dataUsed']['manufactureYear'] >= $rule['minManufactureYear'] || $rule['minManufactureYear'] === null) &&
+
+            ($data['dataUsed']['manufactureYear'] <= $rule['maxManufactureYear'] || $rule['maxManufactureYear'] === null) 
+
+            ){
+                return true;
+            }
+            else {
+                return false;
+            }            
+        }
 }

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ValuationHistory;
+
 
 class Condition extends Model
 {
@@ -17,5 +19,11 @@ class Condition extends Model
         'deduction',
 
         ];
+
+    public function valuationHistories(): HasMany
+        {
+            return $this->hasMany(ValuationHistory::class);
+        }
+
 
 }

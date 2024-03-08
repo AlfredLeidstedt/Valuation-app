@@ -8,9 +8,12 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Resources\ConditionResource;
 
 use Illuminate\Http\Request;
+
 use App\Models\Condition;
 use App\Models\Deduction;
 use App\Models\Rule;
+use App\Models\ValuationHistory;
+
 use Illuminate\Support\Facades\Cache;
 
 
@@ -330,92 +333,32 @@ class ApiController extends Controller
             // I need to get the constraints from the RULE.
 
             /////////////////////////////////////////////////////////////////////////
-            $ruleManufacturer = $rule['manufacturer'];
-
-            $ruleMinKm = $rule['minKm'];
-            $ruleMaxKm = $rule['maxKm'];
-
-            $ruleModelSeries = $rule['modelSeries'];
-
-            // The following are arrays. I need to figure out how to check if the constraints match the values of the car.
-            $ruleHasTowBar = $rule['hasTowBar'];
-            $ruleFuelType = $rule['fuelType'];
-            $ruleGearboxType = $rule['gearboxType'];
-
-            $ruleEquipmentLevel = $rule['equipmentLevel'];
 
             // $ruleMinModelYear = $rule['minModelYear'];
             // $ruleMaxModelYear = $rule['maxModelYear'];
 
-            $ruleMinEnginePower = $rule['minEnginePower'];
-            $ruleMaxEnginePower = $rule['maxEnginePower'];
-            $ruleMinManufactureYear = $rule['minManufactureYear'];
-            $ruleMaxManufactureYear = $rule['maxManufactureYear'];
-
-            // Step 2 conditions:
-            $ruleIsScheduled = $rule['isScheduled'];
-            $ruleStartDate = $rule['startdate'];
-            $ruleEndDate = $rule['enddate'];
-
-            $ruleIsPublished = $rule['isPublished'];
-            $ruleIsActive = $rule['isActive'];
-            $ruleIsContender = $rule['isContender'];
 
             /////////////////////////////////////////////////////////////////////////
 
             // I need to get the values from the CAR object from WAYKE.
-            $carManufacturer = $data['dataUsed']['manufacturer'];
-            $carModelSeries = $data['dataUsed']['modelSeries'];
             
-            $carHasTowbar = $data['dataUsed']['hasTowbar']; // true or false
-            $carFuelType = $data['dataUsed']['fuelType'];
-            $carGearboxType = $data['dataUsed']['gearboxType'];
-
-            $carEquipmentLevel = $data['dataUsed']['equipmentLevel'];
-
-            $carEngninePower = $data['dataUsed']['enginePower'];
-            $carManufactureYear = $data['dataUsed']['manufactureYear'];
-
 
             // I need to check if the constraints from the rule match the values of the car.
             // I also need to check if the rule is active, published or scheduled. 
             // I also need to check if the rule makes a contender.
-        if(
 
             // COMPARE CONSTRAINTS OF THE CAR WITH RULES:
-            $carManufacturer === $ruleManufacturer && 
-            ($carMileageInKm >= $ruleMinKm or $ruleMinKm === null) &&
-            ($carMileageInKm <= $ruleMaxKm or $ruleMaxKm === null) &&
-            ($carModelSeries === $ruleModelSeries or $ruleModelSeries === null) &&
-            //($carHasTowbar === $ruleHasTowBar or $ruleHasTowBar === null) &&
-
-            (
-            (($carHasTowbar === true) && (in_array('HasTowbar', $ruleHasTowBar))) ||
-            (($carHasTowbar === false) && (in_array('HasNoTowbar', $ruleHasTowBar))) ||
-            (empty($ruleHasTowBar)) 
-            ) &&
-
-            (in_array($carFuelType, $ruleFuelType)) &&
-            (in_array($carGearboxType, $ruleGearboxType)) &&
-
-            ($carEquipmentLevel === $ruleEquipmentLevel or $ruleEquipmentLevel === null) &&
-            ($carEngninePower >= $ruleMinEnginePower or $ruleMinEnginePower === null) &&
-            ($carEngninePower <= $ruleMaxEnginePower or $ruleMaxEnginePower === null) &&
-            ($carManufactureYear >= $ruleMinManufactureYear or $ruleMinManufactureYear === null) &&
-            ($carManufactureYear <= $ruleMaxManufactureYear or $ruleMaxManufactureYear === null) 
-
-
-            ) {
+        if($rule->isApplicable($data, $rule, $carMileageInKm)) {
 
                 $today = date("Y-m-d");
 
                 if (         
 
                     // CHECK IF THE RULE IS ACTIVE, PUBLISHED OR SCHEDULED:
-                    $ruleIsActive === true &&
-                    $ruleIsPublished === true &&
-                    (($ruleIsScheduled === true && ($today >= $ruleStartDate && $today <= $ruleEndDate)) or $ruleIsScheduled === false) &&
-                    $ruleIsContender === true
+                    $rule['isActive'] === true &&
+                    $rule['isPublished'] === true &&
+                    (($rule['isScheduled'] === true && ($today >= $rule['startdate'] && $today <= $rule['enddate'])) or $rule['isScheduled'] === false) &&
+                    $rule['isContender'] === true
 
                     ) {
 
@@ -423,22 +366,22 @@ class ApiController extends Controller
 
                 // I need to get the deduction id from the rule to be able to get the deduction value from the deduction table.                
 
-                $deductionId = DB::select('select id from deductions where rule_id = :id', ['id' => $rule['id']]);
+                $deductionObject = DB::select('select id from deductions where rule_id = :id', ['id' => $rule['id']]);
                 // The above line is returning an array of id:s if there are more then one deduction with the same rule_id.
                   
                 $deductionValues = [];
 
                 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-                $deductionIdData = json_decode(json_encode($deductionId), true);
+                $deductionObjectData = json_decode(json_encode($deductionObject), true);
 
                 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
                 // Here I need to make sure that it checks all the deductions that have the same rule_id and not only one. And return the deducton with the highest value.
-                foreach($deductionIdData as $deductionId) {
+                foreach($deductionObjectData as $deductionObject) {
                 
                     // I need to get the deduction object from the deduction table.
-                    $deduction = Deduction::find($deductionId);
+                    $deduction = Deduction::find($deductionObject);
 
                     // I need to parse the $deduction to a JSON object.
                     $data1 = json_decode($deduction, true);
@@ -527,7 +470,23 @@ class ApiController extends Controller
 
                 // I need to check if the car is classed as a contender or not. If it is a non-contender I need to return an error.
                 if (
-                    $ruleIsContender === false
+                    $rule['isContender'] === false
+                ) {
+                    $finalValuation = 0;
+                }
+
+
+                // Here I need to save the valuation. Before I return a response that it is eaither a non-contender
+                // or, if it is a contender, the valuation. 
+
+                $ruleId = $rule['id'];
+                $deductionId = $data1[0]['id'];
+
+                $valuationHistoryObject = new ValuationHistory;
+                $valuationHistoryObject-> saveValuation($conditionId, $estimatedValueFomWayke, $finalValuation, $regNo, $ruleId, $deductionId);
+
+                if (
+                    $finalValuation === 0
                 ) {
                     return response()->json(['error' => 'The car is classed as a non-contender', 'regNr' => $regNo], 200);
                 }

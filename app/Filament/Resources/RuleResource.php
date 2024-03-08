@@ -22,10 +22,19 @@ use Filament\Forms\Components\Repeater\createButtonAction;
 use App\Filament\Resources\Filament\Resources\TextColumn;
 
 use App\Models\Deduction;
+use App\Models\CarModel;
+use App\Models\ValuationHistory;
+
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\Html; // Import the missing class
+
+use Filament\Tables\Filters\Filter;
+
+use App\Filament\Filters\ActiveScheduledRulesFilter;
+
+
 
 
 // THE FOLLOWING IMPORTS ARE FROM THE FILAMENT DOCUMENTATION
@@ -66,38 +75,70 @@ class RuleResource extends Resource
                     ->dehydrated()
                     ->required()
                     ->label('Name of rule'),
-                
+
+                /*
+                // This is giving MANY of the same models. 
+                Forms\Components\Select::make('carModel')
+                    ->relationship('carModel', 'make')
+                    ->searchable()
+                    ->label('Car Make')
+                    ->options(CarModel::query()->pluck('make', 'id')),
+                */
+
                 Forms\Components\TextInput::make('manufacturer')
                     
                     ->datalist([
 
                         'Audi',
-                        'BMW',
-                        'Citroen',
+                        'BYD',
+                        'BMW',                        
+                        'Chevrolet',
+                        'Chrysler',
+                        'Cupra',
+                        'Citroën',
+                        'Dacia',
+                        'Dodge',
+                        'Fiat',
                         'Ford',
                         'Honda',
                         'Hyundai',
+                        'Hymer',
+                        'Jaguar',
+                        'Jeep',
                         'Kia',
+                        'Land Rover',
+                        'Lexus',
+                        'Lynk & Co',
+                        'Maxus',
                         'Mazda',
                         'Mercedes',
+                        'MG',
+                        'Mini',
                         'Mitsubishi',
                         'Nissan',
+                        'Nio',
                         'Opel',
                         'Peugeot',
+                        'Polstar',
+                        'Porsche',
+                        'Ram',
                         'Renault',
                         'Seat',
                         'Skoda',
                         'Subaru',
                         'Suzuki',
                         'Toyota',
+                        'Tesla',
                         'Volkswagen',
                         'Volvo',
+                        'Xpeng'
 
                     ])
-
+    
                     ->required()
                     ->placeholder('Choose manufacturer')
                     ->label('Manufacturer'),
+               
 
                 ])->columns(2),
 
@@ -119,18 +160,20 @@ class RuleResource extends Resource
                     ->numeric()
                     ->placeholder('Max km')
                     ->label('Max km'),
-                
-                Forms\Components\TextInput::make('modelSeries')
-                    ->autofocus()
-                    ->placeholder('Enter if this rule applies to a specific model series')
-                    ->label('Model series')
-                    ->columnSpanFull(),
+
+                Forms\Components\Select::make('carModel')
+                    ->relationship('carModel', 'model')
+                    ->searchable()
+                    ->label('Car Model')
+                    ->options(CarModel::query()->pluck('model', 'id')),
+
                 
                 Forms\Components\CheckboxList::make('hasTowBar')
                     ->options([
                     'HasTowbar' => 'Cars with towbar',
                     'HasNoTowbar' => 'Cars without towbar',
                     ])
+                    ->default(['HasTowbar', 'HasNoTowbar'])
                     ->label('Regarding towbars: Which cars are included by this rule?')
                     ->columnSpanFull(),
                 
@@ -149,13 +192,18 @@ class RuleResource extends Resource
                         'Automat' => 'Automatic',
                         'Manuell' => 'Manual',
                     ])
+                    ->columnSpanFull()
                     ->label('Which gearbox types should this rule apply to?'),
                 
+                    // Temporarily removed. 
+                    /*
                 Forms\Components\TextInput::make('equipmentLevel')
                     ->autofocus()
                     ->placeholder('Equippmentlevel')
                     ->label('Equipment level for this rule')
                     ->columnSpanFull(),
+                    */
+
                 
                 Forms\Components\TextInput::make('minEnginePower')
                     ->autofocus()
@@ -181,32 +229,6 @@ class RuleResource extends Resource
 
                     ])->columns(2),
 
-                    
-
-                // THIS IS THE FORM FOR THE DEDUCTION IN CONNECTION TO THE RULE
-
-                /* This is removed to test to see if the rule can be created first and then the deductions can be added to the rule.
-
-                Forms\Components\Section::make('Deductions connected to this rule')
-
-                ->schema(static::getDetailsFormSchema())
-                
-                ->columns(2),
-
-                */
-                
-                // *************************************************************
-
-                
-                /* 
-                Forms\Components\Section::make('Deductions saved to this rule')
-
-                ->schema([
-                    static::getDeductionsRepeater()
-                    ])
-                
-                ->columns(2),
-                */ 
                 
 
                 ])->columnSpan(['lg' => 2]),
@@ -240,14 +262,16 @@ class RuleResource extends Resource
                     ->required()
                     ->default(false)
                     ->label('Is this rule scheduled?')
-                    ->columnSpanFull(),
+                    ->columnSpan(2),
 
                 Forms\Components\DatePicker::make('startdate')
                     ->label('Startdate')
+                    ->columnSpan(2)
                     ->default(now()),
 
                 Forms\Components\DatePicker::make('enddate')
                     ->label('Enddate')
+                    ->columnSpan(2)
                     ->default(now()),
 
                     ])->columns(2),
@@ -274,29 +298,6 @@ class RuleResource extends Resource
 
                 ]),
 
-                
-                    
-
-
-                // RELATIONSHIPS SECTION
-
-                /*
-                Forms\Components\Section::make('Relationships')
-
-                ->schema([
-
-                Forms\Components\Select::make('deduction_id')
-                ->relationship('deductions', 'name')
-                ->multiple()
-                ->required(),
-
-                ])->columns(2),
-                    
-                ])
-                ->columnSpan(['lg'=>1]),
-
-                */
-
 
                 ])     
                 
@@ -321,6 +322,8 @@ class RuleResource extends Resource
 
             ->columns([
 
+
+
                 Tables\Columns\TextColumn::make('nameOfRule')
                 ->sortable()
                 ->toggleable(),
@@ -337,6 +340,10 @@ class RuleResource extends Resource
                 ->toggleable(),
 
                 Tables\Columns\TextColumn::make('startdate') 
+                ->sortable()
+                ->toggleable(),
+
+                Tables\Columns\TextColumn::make('enddate') 
                 ->sortable()
                 ->toggleable(),
 
@@ -364,7 +371,28 @@ class RuleResource extends Resource
             ])
 
             ->filters([
-                //
+
+                Tables\Filters\TernaryFilter::make('isActive')
+                ->label ('Activity Status')
+                ->boolean()
+                ->trueLabel('Only Active Rules')
+                ->falseLabel('Only Inactive Rules')
+                ->native(false),
+
+                Tables\Filters\TernaryFilter::make('isPublished')
+                ->label ('Publicity status')
+                ->boolean()
+                ->trueLabel('Only Published Rules')
+                ->falseLabel('Only Hidden Rules')
+                ->native(false),
+
+                Filter::make('isScheduled')
+                    ->query (fn (Builder $query) => $query->where('isScheduled', true)),
+
+
+
+                // ActiveScheduledRulesFilter::make(),
+
             ])
 
             ->actions([
@@ -396,6 +424,9 @@ class RuleResource extends Resource
         return [
 
             'deductions' => DeductionsRelationManager::class,
+
+            // This is a test to see if the Rule connects to the CarModel class. 
+            // 'carModel' => Rule::class,
             
         ];
     }

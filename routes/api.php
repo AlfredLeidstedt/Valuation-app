@@ -7,6 +7,8 @@ use App\Http\Controllers\ApiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConditionController;
 use App\Http\Controllers\RuleController;
+use App\Http\Controllers\JsonDataController;
+
 
 
 // This endpoint is created to try and make rule classes.
@@ -77,6 +79,8 @@ Route::get('showProductAndPriceOnly/{id}', [ProductController::class,'ProductAnd
 //THIS ENDPOINT IS WORKING AND IT'S TAKING THE ID AND RETURN THE PRODUCT. 
 Route::apiResource('products', ProductController::class);
 
+// To save json data. 
+Route::put('saveJsonData', [JsonDataController::class, 'storeJsonData']);
 
 
 

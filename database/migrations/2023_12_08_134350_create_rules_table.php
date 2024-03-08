@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+
 return new class extends Migration
 {
     /**
@@ -15,7 +16,7 @@ return new class extends Migration
             
             // AUTO GENERATED PROPERTIES: 
             $table->id();
-            $table->timestamps();
+            //$table->timestamps();
 
             // INFORMATIVE PROPERTIES: 
             $table->string('nameOfRule')->required();
@@ -76,6 +77,13 @@ return new class extends Migration
             // $table->foreignId('deduction_id')
             // ->constrained('deductions')
             // ->cascadeOnDelete();
+
+            // Test to connect Rule with CarModels. 
+            $table->unsignedBigInteger('car_model_id')
+            ->nullable();
+            $table->foreign('car_model_id')->references('id')->on('car_models');
+            $table->timestamps();
+            
 
         });
     }

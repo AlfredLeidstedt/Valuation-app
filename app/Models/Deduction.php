@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ValuationHistory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Deduction extends Model
@@ -35,5 +36,11 @@ class Deduction extends Model
     {
         return $this->belongsTo(Rule::class);
     }
+
+    
+    public function valuationHistories(): HasMany
+        {
+            return $this->hasMany(ValuationHistory::class);
+        }
 
 }
