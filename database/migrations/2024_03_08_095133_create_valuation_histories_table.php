@@ -34,6 +34,10 @@ return new class extends Migration
 
             $table->string('regNo');
 
+            $table->string('manufacturer');
+            
+            $table->string('modelSeries');
+
             $table->timestamps();
         });
     }

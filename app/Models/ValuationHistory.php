@@ -38,16 +38,21 @@ class ValuationHistory extends Model
         return $this->belongsTo(Deduction::class);
     }
 
-    public function saveValuation($conditionId, $valuationFromWayke, $offerFromBilbolaget, $regNo, $ruleId, $deductionId)
+    public function saveValuation($conditionId, $valuationFromWayke, $offerFromBilbolaget, $data, $ruleId, $deductionId)
     {
         $newValuation = new ValuationHistory();
 
         $newValuation->condition_id = $conditionId;
         $newValuation->valuation_from_wayke = $valuationFromWayke;
         $newValuation->offer_from_bilbolaget = $offerFromBilbolaget;
-        $newValuation->regNo = $regNo;
+
+        $newValuation->regNo = $data['registrationNumber'];
+        $newValuation->manufacturer = $data['dataUsed']['manufacturer'];
+        $newValuation->modelSeries = $data['dataUsed']['modelSeries'];
+      
         $newValuation->rule_id = $ruleId;
         $newValuation->deduction_id = $deductionId;
+
 
         $newValuation->save();
 

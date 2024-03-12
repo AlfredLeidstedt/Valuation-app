@@ -124,4 +124,10 @@ class Rule extends Model
                 return false;
             }            
         }
+
+        public function addOneRuleUsage($rule){
+
+            $rule->numberOfUsages++; // Using the model's attribute directly
+            $rule->save();
+        }
 }

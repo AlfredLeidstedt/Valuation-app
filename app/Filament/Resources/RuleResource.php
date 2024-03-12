@@ -173,16 +173,16 @@ class RuleResource extends Resource
                     'HasTowbar' => 'Cars with towbar',
                     'HasNoTowbar' => 'Cars without towbar',
                     ])
-                    ->default(['HasTowbar', 'HasNoTowbar'])
                     ->label('Regarding towbars: Which cars are included by this rule?')
                     ->columnSpanFull(),
                 
                 Forms\Components\CheckboxList::make('fuelType')
                     ->options([
-                    'Electric' => 'Electric',
                     'Diesel' => 'Diesel',
                     'Petrol' => 'Petrol',
+                    'Laddhybrid' => 'Laddhybrid',
                     'Hybrid' => 'Hybrid',
+                    'Electric' => 'Electric',
                     ])
                     ->label('Which fuel types should this rule apply to')
                     ->columnSpanFull(),
@@ -195,7 +195,8 @@ class RuleResource extends Resource
                     ->columnSpanFull()
                     ->label('Which gearbox types should this rule apply to?'),
                 
-                    // Temporarily removed. 
+
+                    // Temporarily removed. Too much detail. 
                     /*
                 Forms\Components\TextInput::make('equipmentLevel')
                     ->autofocus()
@@ -325,6 +326,10 @@ class RuleResource extends Resource
 
 
                 Tables\Columns\TextColumn::make('nameOfRule')
+                ->sortable()
+                ->toggleable(),
+
+                Tables\Columns\TextColumn::make('numberOfUsages')
                 ->sortable()
                 ->toggleable(),
 

@@ -352,6 +352,11 @@ class ApiController extends Controller
 
                 $today = date("Y-m-d");
 
+                // I think that this is the right place to add the rule use, since we want to 
+                // know if the rule is used even though it did not lead to a contender or valuation. 
+                // We just want to know if it was a result of a match. 
+                $rule->addOneRuleUsage($rule);
+
                 if (         
 
                     // CHECK IF THE RULE IS ACTIVE, PUBLISHED OR SCHEDULED:
@@ -483,7 +488,7 @@ class ApiController extends Controller
                 $deductionId = $data1[0]['id'];
 
                 $valuationHistoryObject = new ValuationHistory;
-                $valuationHistoryObject-> saveValuation($conditionId, $estimatedValueFomWayke, $finalValuation, $regNo, $ruleId, $deductionId);
+                $valuationHistoryObject-> saveValuation($conditionId, $estimatedValueFomWayke, $finalValuation, $data, $ruleId, $deductionId);
 
                 if (
                     $finalValuation === 0

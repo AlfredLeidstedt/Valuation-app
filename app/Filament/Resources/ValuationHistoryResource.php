@@ -42,6 +42,14 @@ class ValuationHistoryResource extends Resource
                 ->sortable()
                 ->toggleable(),
 
+                Tables\Columns\TextColumn::make('manufacturer')
+                ->sortable()
+                ->toggleable(),
+
+                Tables\Columns\TextColumn::make('modelSeries')
+                ->sortable()
+                ->toggleable(),
+
                 Tables\Columns\TextColumn::make('valuation_from_wayke')
                 ->sortable()
                 ->toggleable(),

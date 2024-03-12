@@ -73,6 +73,10 @@ return new class extends Migration
             $table->integer('numberOfSetValues')
             ->default(0);
 
+            // Property that set the number of set values, and is used to sort the rules. 
+            $table->integer('numberOfUsages')
+            ->default(0);
+
             // FOREIGN-KEY PROPERTIES THAT ARE SET DEPENDING ON THE INFORMATION-PROPERTIES:
             // $table->foreignId('deduction_id')
             // ->constrained('deductions')
