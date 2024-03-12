@@ -101,11 +101,11 @@ class Rule extends Model
             (empty($rule['hasTowBar'])) 
             ) &&
 
-            (in_array($data['dataUsed']['fuelType'], $rule['fuelType'])) ||
-            (empty($rule['fuelType'])) &&
+            ((in_array($data['dataUsed']['fuelType'], $rule['fuelType'])) ||
+            (empty($rule['fuelType']))) &&
 
-            (in_array($data['dataUsed']['gearboxType'], $rule['gearboxType'])) ||
-            (empty($rule['gearboxType'])) &&
+            ((in_array($data['dataUsed']['gearboxType'], $rule['gearboxType'])) ||
+            (empty($rule['gearboxType']))) &&
 
             //($data['dataUsed']['equipmentLevel'] === $rule['equipmentLevel'] or $rule['equipmentLevel'] === null) &&
 
