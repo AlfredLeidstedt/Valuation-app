@@ -9,7 +9,7 @@
 
 ## Information about the project
 
-This project is something I completed during my time at my LIA that I had at Bilbolaget Personbilars development department, in which store I had worked in before I started this education. 
+This project is something I completed during my time at my LIA that I had at Bilbolaget Personbilars development department. 
 
 The assignment was to create a regulations system that could enable modification of the valuations that the customer request at Bilbolagets website. The functionality was already in place to be able to return valuations to the users through an external API. This was however, non configuarable, so all the request returned the valuation with a standard deduction to the user. In reality though, the head of purchase would like to be able to configure what cars should have a higher or lower valuation returned to the user. This system created with backend of Laravel and frontendend of Filament solves this issue in a simple and powerful way to provide more accurate valuations to the users to prompt more customers to turn to Bilbolaget whenever they want to make a deal regarding their current or future car. 
 
